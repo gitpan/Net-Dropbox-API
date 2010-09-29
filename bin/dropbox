@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 use Net::Dropbox::API;
 use Data::Dumper;
 
-my $box = Net::Dropbox->new({key => 'KEY', secret=>'SECRET'});
+#my $box = Net::Dropbox->new({key => 'KEY', secret=>'SECRET'});
 my $pending;
 
 get '/' => sub  {
