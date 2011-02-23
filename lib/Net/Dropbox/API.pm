@@ -15,11 +15,11 @@ Net::Dropbox::API - A dropbox API interface
 
 =head1 VERSION
 
-Version 1.0.0.10.10.9.8
+Version 1.1.0
 
 =cut
 
-our $VERSION = '1.0';
+our $VERSION = '1.1';
 
 
 =head1 SYNOPSIS
@@ -277,6 +277,20 @@ sub putfile {
 
 }
 
+=head2 getfile
+
+get a file from dropbox
+
+=cut
+
+sub getfile {
+    my $self = shift;
+    my $path = shift || '';
+    my $file = shift || '';
+
+    return $self->_talk('files/'.$self->context.'/'.$path, undef, undef, undef, 'api-content', $file);
+}
+
 
 =head1 INTERNAL API
 
@@ -301,13 +315,15 @@ sub _talk {
     my $method  = shift || 'GET';
     my $content = shift;
     my $filename= shift;
+    my $api     = shift || 'api';
+    my $content_file = shift;
 
     my $ua = LWP::UserAgent->new;
 
     my %opts = (
         consumer_key => $self->key,
         consumer_secret => $self->secret,
-        request_url => 'http://api.dropbox.com/0/'.$command,
+        request_url => 'http://'.$api.'.dropbox.com/0/'.$command,
         request_method => $method,
         signature_method => 'HMAC-SHA1',
         timestamp => time,
@@ -327,7 +343,9 @@ sub _talk {
     $request->sign;
 
     my $res;
-    if($method =~ /get/i){
+    if($content_file) {
+        $res = $ua->get($request->to_url, ':content_file' => $content_file);
+    } elsif($method =~ /get/i){
         $res = $ua->get($request->to_url);
     } else {
         $res = $ua->post($request->to_url, Content_Type => 'form-data', Content => $content );
@@ -353,8 +371,12 @@ sub _talk {
 Lenz Gschwendtner, C<< <norbu09 at cpan.org> >>
 
 With Bug fixes from:
+
 Greg Knauss C<< gknauss at eod.com >>
+
 Chris Prather C<< chris at prather.org >>
+
+Shinichiro Aska
 
 =head1 BUGS
 
