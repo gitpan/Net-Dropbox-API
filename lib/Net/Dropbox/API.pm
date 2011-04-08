@@ -16,11 +16,11 @@ Net::Dropbox::API - A dropbox API interface
 
 =head1 VERSION
 
-Version 1.2.1
+Version 1.3.2.1
 
 =cut
 
-our $VERSION = '1.2';
+our $VERSION = '1.3';
 
 
 =head1 SYNOPSIS
@@ -82,6 +82,7 @@ sub login {
         timestamp => time,
         nonce => $self->nonce,
         callback => $self->callback_url,
+        callback_confirmed => ($self->callback_url ? 'true' : undef)
     );
 
     $request->sign;
@@ -93,7 +94,7 @@ sub login {
         $self->request_secret($response->token_secret);
         print "Got Request Token ", $response->token, "\n" if $self->debug;
         print "Got Request Token Secret ", $response->token_secret, "\n" if $self->debug;
-        return 'http://api.dropbox.com/0/oauth/authorize?oauth_token='.$response->token.'&oauth_callback='.$self->callback_url;
+        return 'https://www.dropbox.com/0/oauth/authorize?oauth_token='.$response->token.'&oauth_callback='.$self->callback_url;
     }
     else {
         $self->error($res->status_line);
