@@ -30,4 +30,5 @@ requires:
   common::sense: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.3
+  repository: https://github.com/norbu09/Net--Dropbox
+version: 1.4
