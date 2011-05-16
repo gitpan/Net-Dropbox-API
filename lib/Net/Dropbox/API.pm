@@ -18,11 +18,11 @@ Net::Dropbox::API - A dropbox API interface
 
 =head1 VERSION
 
-Version 1.5.4.3
+Version 1.6.5.4.3
 
 =cut
 
-our $VERSION = '1.5';
+our $VERSION = '1.6';
 
 
 =head1 SYNOPSIS
@@ -196,7 +196,9 @@ sub list {
           # optional option hash present
         $opts = shift;
     }
-    my $path = shift || '';
+    my $path = shift;
+    $path = '' unless defined $path;
+    $path = '/'.$path if $path=~m|^[^/]|;
 
     my $uri = URI->new('files/'.$self->context.$path);
     $uri->query_form($opts) if scalar keys %$opts;
@@ -440,10 +442,8 @@ sub _talk {
             $data = from_json($res->content);
         };
         if($@) {
-            # got invalid json from server
-            return to_json({ error => "Invalid JSON server response",
-                             http_response_code => $res->code(),
-                           });
+            # this doesn't look like JSON, might be file content
+            return $res->content;
         }
         $data->{http_response_code} = $res->code();
         return to_json($data);
