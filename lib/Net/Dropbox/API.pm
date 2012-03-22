@@ -17,11 +17,11 @@ Net::Dropbox::API - A dropbox API interface
 
 =head1 VERSION
 
-Version 1.7.6.2.6.1.6.5.4.3
+Version 1.8.8.8
 
 =cut
 
-our $VERSION = '1.7';
+our $VERSION = '1.8';
 
 
 =head1 SYNOPSIS
@@ -79,7 +79,7 @@ sub login {
     my $request = Net::OAuth->request("request token")->new(
         consumer_key => $self->key,
         consumer_secret => $self->secret,
-        request_url => 'https://api.dropbox.com/0/oauth/request_token',
+        request_url => 'https://api.dropbox.com/1/oauth/request_token',
         request_method => 'POST',
         signature_method => 'HMAC-SHA1',
         timestamp => time,
@@ -89,7 +89,7 @@ sub login {
     );
 
     $request->sign;
-    my $res = $ua->request(GET $request->to_url);
+    my $res = $ua->request(POST $request->to_url);
 
     if ($res->is_success) {
         my $response = Net::OAuth->response('request token')->from_post_body($res->content);
@@ -97,11 +97,11 @@ sub login {
         $self->request_secret($response->token_secret);
         print "Got Request Token ", $response->token, "\n" if $self->debug;
         print "Got Request Token Secret ", $response->token_secret, "\n" if $self->debug;
-        return 'https://www.dropbox.com/0/oauth/authorize?oauth_token='.$response->token.'&oauth_callback='.$self->callback_url;
+        return 'https://www.dropbox.com/1/oauth/authorize?oauth_token='.$response->token.'&oauth_callback='.$self->callback_url;
     }
     else {
         $self->error($res->status_line);
-        warn "Something went wrong: ".$res->status_line;
+        warn "Something went wrong: " . $res->status_line;
     }
 }
 
@@ -120,7 +120,7 @@ sub auth {
     my $request = Net::OAuth->request("access token")->new(
         consumer_key => $self->key,
         consumer_secret => $self->secret,
-        request_url => 'https://api.dropbox.com/0/oauth/access_token',
+        request_url => 'https://api.dropbox.com/1/oauth/access_token',
         request_method => 'POST',
         signature_method => 'HMAC-SHA1',
         timestamp => time,
@@ -131,7 +131,7 @@ sub auth {
     );
 
     $request->sign;
-    my $res = $ua->request(GET $request->to_url);
+    my $res = $ua->request(POST $request->to_url);
 
     if ($res->is_success) {
         my $response = Net::OAuth->response('access token')->from_post_body($res->content);
@@ -408,7 +408,7 @@ sub _talk {
     my %opts = (
         consumer_key => $self->key,
         consumer_secret => $self->secret,
-        request_url => 'https://'.$api.'.dropbox.com/0/'.$command,
+        request_url => 'https://'.$api.'.dropbox.com/1/'.$command,
         request_method => $method,
         signature_method => 'HMAC-SHA1',
         timestamp => time,
@@ -425,6 +425,7 @@ sub _talk {
     my $request = Net::OAuth->request("protected resource")->new( %opts );
 
     $request->sign;
+    print "_talk URL: ", $request->to_url, "\n" if $self->debug;
 
     my $res;
     if($content_file) {
@@ -476,6 +477,8 @@ Chris Prather C<< chris at prather.org >>
 Shinichiro Aska
 
 [ktdreyer]
+
+SureVoIP L<http://www.surevoip.co.uk>
 
 =head1 BUGS
 
